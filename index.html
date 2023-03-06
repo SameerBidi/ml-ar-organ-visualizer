@@ -1,0 +1,101 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<script type="text/javascript" src="js/aframe.min.js"></script>
+	<script type="text/javascript" src="js/aframe-ar-nft.js"></script>
+
+	<style>
+		.arjs-loader {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-color: rgba(0, 0, 0, 0.8);
+			z-index: 9999;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	
+		.arjs-loader div {
+			text-align: center;
+			font-size: 1.25em;
+			color: white;
+		}
+	</style>
+
+	<title>AR Organ Visualizer</title>
+</head>
+	<body style="margin : 0px; overflow: hidden;">
+		<div class="arjs-loader">
+			<div>Loading, please wait...</div>
+		</div>
+
+		<!-- a-frame scene -->
+		<a-scene vr-mode-ui="enabled: false;"
+			renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;" embedded
+			arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+
+			<a-entity camera>
+				<a-entity id="heartModel" gltf-model="models/heart/heart.gltf" scale="0.1 0.1 0.1" position="0 0 -200" visible="false">
+				</a-entity>
+
+				<a-entity id="lungsModel" gltf-model="models/lungs/scene.gltf" scale="0.3 0.3 0.3" position="0 -30 -200" visible="false">
+				</a-entity>
+			</a-entity>
+
+			<a-nft id="heartNft" markerhandler type="nft" url="nft/heart/heart" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"></a-nft>
+			<a-nft id="lungsNft" markerhandler type="nft" url="nft/lungs/lungs" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"></a-nft>
+		</a-scene>
+	</body>
+
+	<script>
+		
+		const nftData = {
+			"heartNft": {modelId: "heartModel"},
+			"lungsNft": {modelId: "lungsModel"}
+		}
+
+		let activeNft;
+
+		function initNftData() {
+			for(const [nftId, modelData] of Object.entries(nftData)) {
+				let model = document.querySelector("#" + modelData.modelId);
+				model.setAttribute("visible", false);
+				modelData.model = model;
+				modelData.initPos = model.getAttribute("position");
+				modelData.initScale = model.getAttribute("scale");
+				modelData.initRot = model.getAttribute("rotation");
+			}
+
+			console.log(nftData);
+		}
+
+		function setActiveNft(nftId) {
+			activeNft = nftData[nftId];
+		}
+
+		AFRAME.registerComponent('markerhandler', {
+			init: function () {
+				initNftData();
+				this.el.addEventListener('markerFound', () => {
+					let nftId = this.el.id;
+					setActiveNft(nftId);
+					activeNft.model.setAttribute("visible", true);
+				});
+
+				this.el.addEventListener('markerLost', () => {
+					if(activeNft) activeNft.model.setAttribute("visible", false);
+				});
+			},
+			tick: function () {
+			}
+		});
+
+
+	</script>
+</html>
+
