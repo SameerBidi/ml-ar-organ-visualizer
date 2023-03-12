@@ -1,101 +1,107 @@
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<script type="text/javascript" src="js/jquery-3.6.4.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/aframe.min.js"></script>
 	<script type="text/javascript" src="js/aframe-ar-nft.js"></script>
-
-	<style>
-		.arjs-loader {
-			height: 100%;
-			width: 100%;
-			position: absolute;
-			top: 0;
-			left: 0;
-			background-color: rgba(0, 0, 0, 0.8);
-			z-index: 9999;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-	
-		.arjs-loader div {
-			text-align: center;
-			font-size: 1.25em;
-			color: white;
-		}
-	</style>
+	<script type="text/javascript" src="js/hammer.min.js"></script>
+	<script type="text/javascript" src="js/Handler.js"></script>
 
 	<title>AR Organ Visualizer</title>
 </head>
-	<body style="margin : 0px; overflow: hidden;">
-		<div class="arjs-loader">
-			<div>Loading, please wait...</div>
+
+<body style="margin : 0px; overflow: hidden;" data-bs-theme="dark">
+	<div class="arjs-loader">
+		<div>Loading, please wait...</div>
+	</div>
+
+	<div id="infoBox" class="info-box p-3 d-none">
+		<div class="row">
+			<div class="col-12">
+				<div class="card rounded shadow">
+					<div class="card-body">
+						<div class="col-12">
+							<h5 id="infoName">Organ Name</h5>
+							<p id="infoType">A Vital Organ</p>
+						</div>
+						<div class="col-12">
+							<button id="infoBtn" class="btn btn-success">More Info</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+	</div>
 
-		<!-- a-frame scene -->
-		<a-scene vr-mode-ui="enabled: false;"
-			renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;" embedded
-			arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+	<div id="infoModal" class="modal" tabindex="-1">
+		<div class="modal-dialog modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="infoModal_Title" class="modal-title">Modal title</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div id="infoModal_Body" class="modal-body">
+					<div class="row">
+						<div class="col-12">
+							<img id="infoModal_Image" class="img-fluid">
+						</div>
+						<div class="col-12 mt-2">
+							<p id="infoModal_Desc">Organ Desc</p>
+						</div>
+						<hr />
+						<div class="col-12">
+							<div id="infoModal_ExtraHolder" class="row">
+								<div id="infoModal_Extra" class="info-extra col-12 d-none mb-3">
+									<div class="card rounded shadow">
+										<div class="card-body">
+											<div class="row">
+												<div class="col-12">
+													<h6 id="infoModal_ExtraTitle">Sub-Organ Info</h6>
+													<hr />
+												</div>
+												<div class="col-12">
+													<img id="infoModal_ExtraImage" class="img-fluid">
+												</div>
+												<div class="col-12 mt-2">
+													<p id="infoModal_ExtraDesc">Organ Desc</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-			<a-entity camera>
-				<a-entity id="heartModel" gltf-model="models/heart/heart.gltf" scale="0.1 0.1 0.1" position="0 0 -200" visible="false">
-				</a-entity>
-
-				<a-entity id="lungsModel" gltf-model="models/lungs/scene.gltf" scale="0.3 0.3 0.3" position="0 -30 -200" visible="false">
-				</a-entity>
+	<a-scene vr-mode-ui="enabled: false;"
+		renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;" embedded
+		arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+		<a-entity camera>
+			<a-entity id="heartModel" gltf-model="models/heart/heart.gltf" scale="0.1 0.1 0.1" position="0 0 -200"
+				visible="false">
 			</a-entity>
 
-			<a-nft id="heartNft" markerhandler type="nft" url="nft/heart/heart" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"></a-nft>
-			<a-nft id="lungsNft" markerhandler type="nft" url="nft/lungs/lungs" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"></a-nft>
-		</a-scene>
-	</body>
+			<a-entity model-loaded id="lungsModel" gltf-model="models/lungs/scene.gltf" scale="0.3 0.3 0.3"
+				position="0 -30 -200" visible="false">
+			</a-entity>
+		</a-entity>
 
-	<script>
-		
-		const nftData = {
-			"heartNft": {modelId: "heartModel"},
-			"lungsNft": {modelId: "lungsModel"}
-		}
+		<a-nft id="heartNft" markerhandler type="nft" url="nft/heart/heart" smooth="true" smoothCount="10"
+			smoothTolerance=".01" smoothThreshold="5"></a-nft>
+		<a-nft id="lungsNft" markerhandler type="nft" url="nft/lungs/lungs" smooth="true" smoothCount="10"
+			smoothTolerance=".01" smoothThreshold="5"></a-nft>
+	</a-scene>
+</body>
 
-		let activeNft;
-
-		function initNftData() {
-			for(const [nftId, modelData] of Object.entries(nftData)) {
-				let model = document.querySelector("#" + modelData.modelId);
-				model.setAttribute("visible", false);
-				modelData.model = model;
-				modelData.initPos = model.getAttribute("position");
-				modelData.initScale = model.getAttribute("scale");
-				modelData.initRot = model.getAttribute("rotation");
-			}
-
-			console.log(nftData);
-		}
-
-		function setActiveNft(nftId) {
-			activeNft = nftData[nftId];
-		}
-
-		AFRAME.registerComponent('markerhandler', {
-			init: function () {
-				initNftData();
-				this.el.addEventListener('markerFound', () => {
-					let nftId = this.el.id;
-					setActiveNft(nftId);
-					activeNft.model.setAttribute("visible", true);
-				});
-
-				this.el.addEventListener('markerLost', () => {
-					if(activeNft) activeNft.model.setAttribute("visible", false);
-				});
-			},
-			tick: function () {
-			}
-		});
-
-
-	</script>
 </html>
-

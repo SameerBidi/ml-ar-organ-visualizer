@@ -1,0 +1,121 @@
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<script type="text/javascript" src="js/aframe.min.js"></script>
+	<script type="text/javascript" src="js/aframe-ar-nft.js"></script>
+
+
+	<style>
+		.arjs-loader {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-color: rgba(0, 0, 0, 0.8);
+			z-index: 9999;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.arjs-loader div {
+			text-align: center;
+			font-size: 1.25em;
+			color: white;
+		}
+	</style>
+
+	<title>AR Organ Visualizer</title>
+</head>
+
+<body style="margin : 0px; overflow: hidden;">
+
+	<a-scene cust-raycaster>
+		<a-entity camera look-controls wasd-controls></a-entity>
+
+		<a-assets>
+			<a-asset-item id="model" src="models/lungs/scene.gltf"></a-asset-item>
+		</a-assets>
+
+		<a-entity gltf-model="#model" scale="0.01 0.01 0.01" position="0 -1 -5"></a-entity>
+	</a-scene>
+</body>
+
+<script>
+
+	function findNestedObj(entireObj, keyToFind, valToFind) {
+		let foundObj;
+		JSON.stringify(entireObj, (_, nestedValue) => {
+			if (nestedValue && nestedValue[keyToFind] === valToFind) {
+				foundObj = nestedValue;
+			}
+			return nestedValue;
+		});
+		return foundObj;
+	};
+
+	AFRAME.registerComponent('cust-raycaster', {
+		init: function () {
+			let sceneEl = this.el;
+			let children = sceneEl.object3D.children;
+
+			this.el.addEventListener('click', function (e) {
+				var camera = sceneEl.camera;
+				var raycaster = new THREE.Raycaster();
+				var mouse = new THREE.Vector2();
+				mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+				raycaster.setFromCamera(mouse, camera);
+				var intersects = raycaster.intersectObjects(sceneEl.object3D.children, true);
+				if (intersects.length > 0) {
+					let intObj = intersects[0].object;
+					let intPoint = intersects[0].point;
+
+					data = {};
+
+					data["name"] = intObj.name;
+					data["type"] = intObj.type;
+					data["point"] = intPoint;
+
+					console.log(JSON.stringify(data));
+				}
+			});
+		}
+	});
+
+
+	AFRAME.registerComponent('clickable', {
+		init: function () {
+			this.el.addEventListener('click', function () {
+				console.log('Clicked!');
+			});
+		}
+	});
+
+	AFRAME.registerComponent('raycast-listener', {
+		init: function () {
+			console.log(this);
+			var el = this.el;
+			el.sceneEl.addEventListener('click', function (e) {
+				var camera = el.sceneEl.camera;
+				var raycaster = new THREE.Raycaster();
+				var mouse = new THREE.Vector2();
+				mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+				raycaster.setFromCamera(mouse, camera);
+				var intersects = raycaster.intersectObjects(el.sceneEl.object3D.children, true);
+				if (intersects.length > 0) {
+					var intersectedObj = intersects[0].object;
+					console.log('Intersected object:', intersectedObj);
+				}
+			});
+		}
+	});
+
+</script>
+
+</html>
